@@ -1,0 +1,118 @@
+{% extends "network/layout.html" %}
+{% load static %}
+
+{% block style %}
+<link href="{% static 'network/profile.css' %}" rel="stylesheet">
+{% endblock %}
+
+{% block body %}
+{% if user_profile == None %}
+<h1>Oops on such user as "{{username}}"</h1>
+{% else %}
+<div id="user-icon"><i class='fas fa-user-circle'></i></div>
+<h1 class="my_profile_title"><strong class="text-muted">{{user_profile.username}}</strong></h1>
+
+<div class="user_info">
+    <h5>{{user_profile.first_name}} {{user_profile.last_name}}</h5>
+    <p><i class="fa fa-envelope"></i> {{user_profile.email}}</p>
+    <p><i class="far fa-calendar-alt"></i> Date joined: {{user_profile.date_joined}}</p>
+    {% if follower %}
+    <button id="follow_button" data-user="{{user_profile}}" class="btn btn-info" style="font-size: 22px;">Unfollow</button>
+    {% else %}
+    <button id="follow_button" data-user="{{user_profile}}" class="btn btn-info" style="font-size: 22px;">Follow</button>
+    {% endif %}
+    <br>
+    <hr>
+    <div class="btn-group" role="group">
+        <button type="button" class="toggle_button btn btn-secondary">Posts</button>
+        <button type="button" class="toggle_button btn btn-secondary">Followers</button>
+        <button type="button" class="toggle_button btn btn-secondary">Following</button>
+    </div>
+</div>
+<div class="followers">
+    <h1>Followers</h1>
+    {% for follower in followers %}
+    <a href="{% url 'user_profile' follower.follower %}"><div class="follower"><i class="fas fa-user-circle"></i> {{follower.follower}}</div></a>
+    {% endfor %}
+</div>
+<div class="followings">
+    <h1>Following</h1>
+    {% for following in followings %}
+    <a href="{% url 'user_profile' following.following %}"><div class="following"><i class="fas fa-user-circle"></i> {{following.following}}</div></a>
+    {% endfor %}
+</div>
+<div id="user_posts">
+    <h1 style="color:#2aa9b3; text-align: center; margin-left: -50px;">Posts</h1>
+    {% for post in user_profile.post_user.all %}
+    <div id="{{post.id}}">
+        <div class="user">
+            <p><a class="btn btn-light" href="{% url 'user_profile' post.user %}"><i style="color: #2aa9b3"
+                        class='fas fa-user-alt'></i> {{post.user}}</a></p>
+            <small class="text-muted">
+                <p>{{post.time}}</p>
+            </small>
+        </div>
+        <div class="post_content">
+            <div>
+                <h4>{{post.title}}</h4>
+                <hr>
+                <pre rows="5" class="post">{{post.body}}</pre>
+            </div>
+            <hr>
+            <div class="media_response">
+                <button class="like_count btn btn-light" data-id="{{post.id}}"
+                    disabled>{{post.post_like.count}}</button>
+                {% if user.is_authenticated %}
+                {% if post.id in user_likes %}
+                <button data-id="{{post.id}}" class="like_button btn btn-light"><i style="color: red; font-size: 22px;"
+                        class="fas fa-heart"></i></button>
+                {% else %}
+                <button data-id="{{post.id}}" class="like_button btn btn-light"><i style="color: red; font-size: 22px;"
+                        class="far fa-heart"></i></button>
+                {% endif %}
+                {% else %}
+                <button data-id="{{post.id}}" class="like_button btn btn-light" disabled><i
+                        style="color: red; font-size: 22px;" class="far fa-heart"></i></button>
+                {% endif %}
+                {% if user.is_authenticated %}
+                <button data-id="{{post.id}}" class="open_comment_form btn btn-info"><i class="far fa-comment-alt"></i>
+                    Comment</button>
+                {% else %}
+                <button data-id="{{post.id}}" class="open_comment_form btn btn-info" disabled><i
+                        class="far fa-comment-alt"></i> Comment</button>
+                {% endif %}
+                <button data-post_id="{{post.id}}" class="comment_view btn btn-light"><i style="color:#2aa9b3;"
+                        class="fas fa-comment-alt"></i> {{post.post_comment.count}}</button>
+            </div>
+        </div>
+        <div data-id="{{post.id}}" class="show_comments">
+            {% for comment in post.post_comment.all %}
+            <div class="comment_content">
+                <p><a class="btn btn-light">{{comment.user}}</a></p>
+                <small class="text-muted">
+                    <p>{{comment.time}}</p>
+                </small>
+                <textarea class="comment">{{comment.comment}}</textarea><br>
+            </div>
+            {% endfor %}
+        </div>
+        <div class="create_comment" data-id="{{post.id}}">
+            <form action="{% url 'comment_post' post.id %}" method="post" class="comment_form">
+                {%csrf_token%}
+                <textarea data-id="{{post.id}}" class="comment_body form-control" rows="5" name="comment_body"
+                    placeholder="Comment" maxlength="200"></textarea>
+                <input data-id="{{post.id}}" class="comment_submit btn btn-info" type="submit" value="Comment"
+                    disabled />
+            </form>
+            <button class="comment_cancel btn btn-danger">Cancel</button>
+        </div>
+    </div>
+    {% empty %}
+    <p>No Posts!</p>
+    {% endfor %}
+</div>
+{% endif %}
+{% endblock %}
+{% block script %}
+<script src="{% static 'network/user.js' %}"></script>
+{% endblock %}

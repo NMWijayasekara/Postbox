@@ -1,0 +1,44 @@
+/* Profile Page styles */
+.my_profile_title{
+    width: max-content;
+    margin-left: auto;
+    margin-right: auto;
+    border-bottom: 2px solid #575757;
+}
+/* User's posts */
+.title {
+    text-align: center;
+}
+.user_posts{
+    border: 3px solid gray;
+    border-radius: 6px;
+    width: 900px;
+    margin-left: auto;
+    margin-right: auto;
+    margin-bottom: 20px;
+    padding-top: 15px;
+    padding-bottom: 15px;
+}
+.user_post{
+    border: 2px solid gray;
+    margin-top: 10px;
+    margin-left: auto;
+    margin-right: auto;
+    margin-bottom: 5px;
+    width: 850px;
+    padding-top: 5px;
+    padding-bottom: -10px;
+}
+.user_post p, .user_post small{
+    display: inline-block;
+}
+
+.user_post small{
+    float: right;
+}
+
+/* User Info */
+
+.user_info{
+    text-align: center;
+}

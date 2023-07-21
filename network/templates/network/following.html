@@ -1,0 +1,156 @@
+{% extends "network/layout.html" %}
+
+{% load static %}
+
+{% block body %}
+{% if user.is_authenticated %}
+<div id="user_sub_profile">
+    <div id="user-icon"><i class='fas fa-user-circle'></i></div>
+    <p id="username"><a class="btn btn-light" href="{% url 'my_profile' %}"><strong>{{user.username}}</strong></a></p>
+    <hr style="width: 90%; border: 1px solid #2aa9b3;" />
+    <div id="followers_div">
+        <p id="followers">Followers</p>
+        <p id="followers_count">{{user.following.count}}</p>
+    </div>
+    <div id="following_div">
+        <p id="following">Following</p>
+        <p id="following_count">{{user.followers.count}}</p>
+    </div>
+    <p id="create_post"><a class="btn btn-info" href="{% url 'create_post' %}">Create Post</a></p>
+</div>
+{% else %}
+<div id="sub_login">
+    <h2>Login</h2>
+    {% if message %}
+    <div>{{ message }}</div>
+    {% endif %}
+    <form action="{% url 'login' %}" method="post">
+        {% csrf_token %}
+        <div class="form-group">
+            <input autofocus class="form-control" type="text" name="username" placeholder="Username">
+        </div>
+        <div class="form-group">
+            <input class="form-control" type="password" name="password" placeholder="Password">
+        </div>
+        <input class="btn btn-info" type="submit" value="Login">
+    </form>
+    Don't have an account? <a href="{% url 'register' %}">Register here.</a>
+    <br>
+    Login to post, comment and like
+</div>
+{% endif %}
+<span class="current" style="margin-left: 105px; font-family: Arial, Helvetica, sans-serif; font-size: 18px;">
+    Page {{ allposts.number }} of {{ allposts.paginator.num_pages }}.
+</span>
+<nav>
+    <ul class="pagination justify-content-left" style="margin-left: 50px;">
+        {% if allposts.has_previous %}
+        <li class="page-item">
+            <a class="page-link" href="?page=1" tabindex="-1" aria-disabled="true">&laquo; First</a>
+        </li>
+        <li class="page-item">
+            <a class="page-link" href="?page={{ allposts.previous_page_number }}" tabindex="-1"
+                aria-disabled="true">Previous</a>
+        </li>
+        {% endif %}
+    </ul>
+</nav>
+<div id="posts">
+    {% for post in allposts %}
+    <div id="{{post.id}}">
+        <div class="user">
+            <p><a class="btn btn-light" href="{% url 'user_profile' post.user %}"><i style="color: #2aa9b3"
+                        class='fas fa-user-alt'></i> {{post.user}}</a></p>
+            <small class="text-muted">
+                <p>{{post.time}}</p>
+            </small>
+        </div>
+        <div class="post_content">
+            <div>
+                {% if user == post.user %}
+                <a href="{% url 'edit_post' post.id%}"><i class="far fa-edit"
+                        style="float: right; margin-right: 10px; margin-top: 5px; color: #2aa9b3; font-size: 20px;"></i></a>
+                {% endif %}
+                <h4>{{post.title}}</h4>
+                <hr>
+                <pre rows="5" class="post">{{post.body}}</pre>
+            </div>
+            <hr>
+            <div class="media_response">
+                <button class="like_count btn btn-light" data-id="{{post.id}}"
+                    disabled>{{post.post_like.count}}</button>
+                {% if user.is_authenticated %}
+                {% if post.id in user_likes %}
+                <button data-id="{{post.id}}" class="like_button btn btn-light"><i style="color: red; font-size: 22px;"
+                        class="fas fa-heart"></i></button>
+                {% else %}
+                <button data-id="{{post.id}}" class="like_button btn btn-light"><i style="color: red; font-size: 22px;"
+                        class="far fa-heart"></i></button>
+                {% endif %}
+                {% else %}
+                <button data-id="{{post.id}}" class="like_button btn btn-light" disabled><i
+                        style="color: red; font-size: 22px;" class="far fa-heart"></i></button>
+                {% endif %}
+                {% if user.is_authenticated %}
+                <button data-id="{{post.id}}" class="open_comment_form btn btn-info"><i class="far fa-comment-alt"></i>
+                    Comment</button>
+                {% else %}
+                <button data-id="{{post.id}}" class="open_comment_form btn btn-info" disabled><i
+                        class="far fa-comment-alt"></i> Comment</button>
+                {% endif %}
+                <button data-post_id="{{post.id}}" class="comment_view btn btn-light"><i style="color:#2aa9b3;"
+                        class="fas fa-comment-alt"></i> {{post.post_comment.count}}</button>
+            </div>
+        </div>
+        <div data-id="{{post.id}}" class="show_comments">
+            {% for comment in post.post_comment.all %}
+            <div class="comment_content">
+                <p><a class="btn btn-light">{{comment.user}}</a></p>
+                <small class="text-muted">
+                    <p>{{comment.time}}</p>
+                </small>
+                <textarea class="comment">{{comment.comment}}</textarea><br>
+            </div>
+            {% endfor %}
+        </div>
+        <div class="create_comment" data-id="{{post.id}}">
+            <form action="{% url 'comment_post' post.id %}" method="post" class="comment_form">
+                {%csrf_token%}
+                <textarea data-id="{{post.id}}" class="comment_body form-control" rows="5" name="comment_body"
+                    placeholder="Comment" maxlength="200"></textarea>
+                <input data-id="{{post.id}}" class="comment_submit btn btn-info" type="submit" value="Comment"
+                    disabled />
+            </form>
+            <button class="comment_cancel btn btn-danger">Cancel</button>
+        </div>
+    </div>
+    {% empty %}
+    <p>There are no posts from the users you are following or you are not following any user</p>
+    {% endfor %}
+</div>
+<nav>
+    <ul class="pagination justify-content-left" style="margin-left: 50px;">
+        {% if allposts.has_previous %}
+        <li class="page-item">
+            <a class="page-link" href="?page=1" tabindex="-1" aria-disabled="true">&laquo; First</a>
+        </li>
+        <li class="page-item">
+            <a class="page-link" href="?page={{ allposts.previous_page_number }}" tabindex="-1"
+                aria-disabled="true">Previous</a>
+        </li>
+        {% endif %}
+        {% if allposts.has_next %}
+        <li class="page-item">
+            <a class="page-link" href="?page={{ allposts.next_page_number }}">Next</a>
+        </li>
+        <li class="page-item">
+            <a class="page-link" href="?page={{ allposts.paginator.num_pages }}">Last &raquo;</a>
+        </li>
+        {% endif %}
+    </ul>
+</nav>
+{% endblock %}
+
+{% block script %}
+<script src="{% static 'network/index.js' %}"></script>
+{% endblock %}

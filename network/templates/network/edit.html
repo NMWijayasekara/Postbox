@@ -1,0 +1,30 @@
+{% extends "network/layout.html" %}
+
+{% load static %}
+
+
+{% block body %}
+{% if user == post.user %}
+<h2 id="create_head">Edit Post</h2>
+<div id="create_post">
+    <form action="{% url 'edit_post' post.id%}" method="post">
+        {% csrf_token %}
+        <input class="form-control" name="title" id="post_title" type="text" placeholder="Title" maxlength="58"
+            value="{{post.title}}" required />
+        <div id="text_body">
+            <pre><textarea name="body" id="post_body" type="text" placeholder="Body" rows="12" maxlength="1000" required>{{post.body}}</textarea></pre>
+            <div id="char_count">0/1000</div>
+        </div>
+        <div id="form_buttons">
+            <input class="btn btn-info" id="create_submit" type="submit" value="Save Post" />
+            <a id="cancel_create" class="btn btn-danger" href="{% url 'index' %}">Cancel</a>
+        </div>
+    </form>
+</div>
+{% endif %}
+
+{% endblock %}
+
+{% block script %}
+<script src="{% static 'network/create.js' %}"></script>
+{% endblock %}

@@ -1,0 +1,33 @@
+{% extends "network/layout.html" %}
+
+{% load static %}
+
+
+{% block body %}
+{% if user.is_authenticated %}
+<h2 id="create_head">Create Post</h2>
+<div id="create_post">
+    <form action="{% url 'create_post' %}" method="post">
+        {% csrf_token %}
+        <input class="form-control" name="title" id="post_title" type="text" placeholder="Title" maxlength="58"
+            required />
+        <div id="text_body">
+            <pre><textarea name="body" id="post_body" type="text" placeholder="Body" rows="12" maxlength="1000" required></textarea></pre>
+            <div id="char_count">0/1000</div>
+        </div>
+        <div id="form_buttons">
+            <input class="btn btn-info" id="create_submit" type="submit" value="Create Post" />
+            <a id="cancel_create" class="btn btn-danger" href="{% url 'index' %}">Cancel</a>
+        </div>
+    </form>
+</div>
+{% else %}
+<h1>You must login to create post!</h1>
+<a class="btn btn-danger" style="margin-left: 20px;" href="{% url 'login' %}">Log In</a>
+{% endif %}
+
+{% endblock %}
+
+{% block script %}
+<script src="{% static 'network/create.js' %}"></script>
+{% endblock %}
